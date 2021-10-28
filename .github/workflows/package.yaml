@@ -64,4 +64,4 @@ jobs:
       - name: Install dependencies and build
         run: npm install
       - name: Publish
-        run: npm publish --dry-run
+        run: npm publish
