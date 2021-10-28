@@ -1,7 +1,7 @@
 {
   "name": "@descript/sqlite3",
   "description": "Asynchronous, non-blocking SQLite3 bindings",
-  "version": "5.0.3-rc.3",
+  "version": "5.0.3-rc.4",
   "homepage": "https://github.com/descriptinc/node-sqlite3",
   "author": {
     "name": "Descript",
@@ -41,8 +41,7 @@
   },
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.0",
-    "node-addon-api": "^4.2.0",
-    "node-pre-gyp-github": "^1.4.3"
+    "node-addon-api": "^4.2.0"
   },
   "devDependencies": {
     "@mapbox/cloudfriend": "^1.9.0",
