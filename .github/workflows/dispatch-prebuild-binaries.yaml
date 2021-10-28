@@ -1,0 +1,58 @@
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag_name:
+        description: "Release tag name to build"
+        required: true
+jobs:
+  publish-prebuilt-binaries:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-11
+          - windows-2019
+          - ubuntu-18.04
+        target_arch:
+          - x64
+        node_version:
+          - 14.16.0
+        include:
+          - os: macos-11
+            target_arch: arm
+            node_version: 14.16.0
+    runs-on: ${{ matrix.os }}
+    env:
+      REL_TAG: ${{ github.event.inputs.release_tag_name }}
+      TARGET_ARCH: ${{ matrix.target_arch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.release_tag_name }}
+      - name: Set up NodeJS ${{ matrix.node_version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install node-pre-gyp
+        run: npm install -g @mapbox/node-pre-gyp
+      - name: Install dependencies and build
+        run: npm install --build-from-source --target_arch=${{ matrix.target_arch }}
+      - name: Package
+        run: npx node-pre-gyp package --target_arch=${{ matrix.target_arch }}
+      - name: Publish (macOS)
+        if: ${{ runner.os == 'macOS'}}
+        run: gh release --repo "${GITHUB_REPOSITORY}" upload "${REL_TAG}" "build/stage/${REL_TAG}/napi-v3-darwin-${TARGET_ARCH}.tar.gz" --clobber
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Publish (Linux)
+        if: ${{ runner.os == 'Linux'}}
+        run: gh release --repo "${GITHUB_REPOSITORY}" upload "${REL_TAG}" "build/stage/${REL_TAG}/napi-v3-linux-${TARGET_ARCH}.tar.gz" --clobber
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Publish (Windows)
+        if: ${{ runner.os == 'Windows'}}
+        # I don't know why the Windows syntax is so much finickier
+        run: gh release upload ${{ env.REL_TAG }} .\build\stage\${{ env.REL_TAG }}\napi-v3-win32-${{ env.TARGET_ARCH }}.tar.gz --repo ${{ github.repository }} --clobber
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
