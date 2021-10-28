@@ -1,0 +1,54 @@
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+jobs:
+  #  publish-package:
+  #    runs-on: ubuntu-18.04
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v2
+  #      - name: Install dependencies
+  #        uses: actions/checkout@v2
+  publish-prebuild:
+    strategy:
+      matrix:
+        node-version:
+          - 14.16.0
+        os:
+          - macos-11
+          - windows-2019
+          - ubuntu-18.04
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up NodeJS ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build for macOS
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          npm install --build-from-source
+          npm run node-pre-gyp configure
+          ./scripts/build_against_node.sh
+          npm run node-pre-gyp package
+      - name: Build for Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          npm install --build-from-source
+          npm run node-pre-gyp configure
+          ./scripts/build_against_node.sh
+          npm run node-pre-gyp package
+      - name: Build for Windows
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          npm install --build-from-source --msvs_version=2019
+          npm run node-pre-gyp configure
+          npm run node-pre-gyp rebuild --msvs_version=2019
+          npm run node-pre-gyp package --msvs_version=2019
+#     - name: Publish
+#       run: npm run node-pre-gyp-github publish
+#       env:
+#         NODE_PRE_GYP_GITHUB_TOKEN: ${{ github.token }}
