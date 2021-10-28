@@ -1,17 +1,17 @@
 {
   "name": "@descript/sqlite3",
   "description": "Asynchronous, non-blocking SQLite3 bindings",
-  "version": "5.0.3-rc.2",
+  "version": "5.0.3-rc.5",
   "homepage": "https://github.com/descriptinc/node-sqlite3",
   "author": {
-    "name": "MapBox",
-    "url": "https://mapbox.com/"
+    "name": "Descript",
+    "url": "https://descript.com/"
   },
   "binary": {
     "module_name": "node_sqlite3",
     "module_path": "./lib/binding/napi-v{napi_build_version}-{platform}-{arch}",
-    "host": "https://mapbox-node-binary.s3.amazonaws.com",
-    "remote_path": "./{name}/v{version}/{toolset}/",
+    "host": "https://github.com/descriptinc/node-sqlite3/releases/download/",
+    "remote_path": "v{version}",
     "package_name": "napi-v{napi_build_version}-{platform}-{arch}.tar.gz",
     "napi_versions": [
       3
@@ -37,7 +37,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/mapbox/node-sqlite3.git"
+    "url": "https://github.com/descriptinc/node-sqlite3.git"
   },
   "dependencies": {
     "node-addon-api": "^3.0.0",
@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@mapbox/cloudfriend": "^1.9.0",
-    "aws-sdk": "2.x",
     "eslint": "3.5.0",
     "mocha": "^5.2.0"
   },
@@ -61,10 +60,10 @@
     "node-gyp": "7.x"
   },
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build",
+    "install": "npx node-pre-gyp install --fallback-to-build",
     "pretest": "node test/support/createdb.js",
-    "test": "mocha -R spec --timeout 480000",
-    "pack": "node-pre-gyp package"
+    "test": "npx mocha -R spec --timeout 480000",
+    "pack": "npx node-pre-gyp package"
   },
   "license": "BSD-3-Clause",
   "keywords": [

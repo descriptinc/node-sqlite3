@@ -1,0 +1,41 @@
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "The release tag name"
+        required: true
+jobs:
+  publish-prebuilt-binaries:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2019
+        target_arch:
+          - x64
+        node_version:
+          - 14.16.0
+    runs-on: ${{ matrix.os }}
+    env:
+      REL_TAG: ${{ github.event.inputs.tag_name }}
+      TARGET_ARCH: ${{ matrix.target_arch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.inputs.tag_name }}
+      - name: Set up NodeJS ${{ matrix.node_version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node_version }}
+      - name: Install node-pre-gyp
+        run: npm install -g @mapbox/node-pre-gyp
+      - name: Install dependencies and build
+        run: npm install --build-from-source --target_arch=${{ matrix.target_arch }}
+      - name: Package
+        run: npx node-pre-gyp package --target_arch=${{ matrix.target_arch }}
+      - name: Publish (Windows)
+        if: ${{ runner.os == 'Windows'}}
+        run: gh release upload ${{ env.REL_TAG }} .\build\stage\${{ env.REL_TAG }}\napi-v3-win32-${{ env.TARGET_ARCH }}.tar.gz --repo ${{ github.repository }} --clobber
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
