@@ -16,7 +16,7 @@ jobs:
           - 14.16.0
         include:
           - os: macos-11
-            target_arch: arm
+            target_arch: arm64
             node_version: 14.16.0
     runs-on: ${{ matrix.os }}
     env:
